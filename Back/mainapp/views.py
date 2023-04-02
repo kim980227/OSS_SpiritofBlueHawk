@@ -1,5 +1,6 @@
 from django.shortcuts import render
 from .models import Post
+from .models import BulletinBoard
 from .forms import PostForm
 def index(request):
 
@@ -50,3 +51,17 @@ def single_post_page(request, pk):
         }
     )
 
+def bulletin_board(request):
+    bulletins = BulletinBoard.objects.all().order_by('-created_at')
+    for bulletin in bulletins:
+        bulletin.comments = bulletin.comments.all().order_by('-created_at')
+    context = {'bulletins': bulletins}
+    return render(request, 'bulletin_board.html', context)
+
+def add_comment(request, bulletin_id):
+    bulletin = get_object_or_404(BulletinBoard, pk=bulletin_id)
+    if request.method == 'POST':
+        form = CommentForm(request.POST)
+        if form.is_valid():
+            comment = form.save(commit=False)
+            comment.b
